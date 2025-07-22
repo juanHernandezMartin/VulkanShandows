@@ -16,6 +16,7 @@
 #include "resource.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <chrono>
 
 
 #define SKYBOX_PIPELINE 0
@@ -223,7 +224,8 @@ void GEScene::recreate(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandCon
 //
 void GEScene::update(GEGraphicsContext* gc, uint32_t index)
 {
-	camera->update();
+	calculateDeltaTime();
+	camera->update(deltaTime);
 	glm::mat4 view = camera->getViewMatrix();
 
 	skybox->update(gc, index, view, projection);
@@ -247,50 +249,23 @@ void GEScene::update(GEGraphicsContext* gc, uint32_t index)
 //
 void GEScene::key_action(int key, bool pressed)
 {
-	switch (key)
-	{
-	case GLFW_KEY_UP:
-		camera->setTurnDown(pressed);
-		break;
-	case GLFW_KEY_DOWN:
-		camera->setTurnUp(pressed);
-		break;
-	case GLFW_KEY_LEFT:
-		camera->setTurnCCW(pressed);
-		break;
-	case GLFW_KEY_RIGHT:
-		camera->setTurnCW(pressed);
-		break;
-	case GLFW_KEY_S:
-		camera->setMoveStep(0.0f);
-		break;
-	case GLFW_KEY_KP_ADD:
-	case GLFW_KEY_1:
-		camera->setMoveStep(camera->getMoveStep() + 0.1f);
-		break;
-	case GLFW_KEY_KP_SUBTRACT:
-	case GLFW_KEY_2:
-		camera->setMoveStep(camera->getMoveStep() - 0.1f);
-		break;
-	case GLFW_KEY_Q:
-		camera->setMoveUp(pressed);
-		break;
-	case GLFW_KEY_A:
-		camera->setMoveDown(pressed);
-		break;
-	case GLFW_KEY_O:
-		camera->setMoveLeft(pressed);
-		break;
-	case GLFW_KEY_P:
-		camera->setMoveRight(pressed);
-		break;
-	case GLFW_KEY_K:
-		camera->setTurnLeft(pressed);
-		break;
-	case GLFW_KEY_L:
-		camera->setTurnRight(pressed);
-		break;
-	}
+	keyStates[key] = pressed;
+
+	// Restablecer movimiento antes de aplicar cambios
+	camera->cameraMoveDirection = glm::vec3(0.0f);
+
+	// Aplicar movimiento en función de teclas activas
+	if (keyStates[GLFW_KEY_W]) camera->cameraMoveDirection.z = 1.0f;
+	if (keyStates[GLFW_KEY_S]) camera->cameraMoveDirection.z = -1.0f;
+	if (keyStates[GLFW_KEY_A]) camera->cameraMoveDirection.x = 1.0f;
+	if (keyStates[GLFW_KEY_D]) camera->cameraMoveDirection.x = -1.0f;
+	if (keyStates[GLFW_KEY_Q]) camera->cameraMoveDirection.y = 1.0f;
+	if (keyStates[GLFW_KEY_E]) camera->cameraMoveDirection.y = -1.0f;
+
+	if (keyStates[GLFW_KEY_UP]) camera->turnDown();
+	if (keyStates[GLFW_KEY_DOWN]) camera->turnUp();
+	if (keyStates[GLFW_KEY_LEFT]) camera->turnLeft();
+	if (keyStates[GLFW_KEY_RIGHT]) camera->turnRight();
 }
 
 //
@@ -489,4 +464,12 @@ glm::mat4 GEScene::getLightViewMatrix()
 
 	glm::mat4 view = glm::lookAt(Zpos, Center, Ydir);
 	return view;
+}
+
+
+void GEScene::calculateDeltaTime()
+{
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastTime).count();
+	lastTime = currentTime;
 }

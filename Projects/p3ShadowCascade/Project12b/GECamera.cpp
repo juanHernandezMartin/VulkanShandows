@@ -25,17 +25,6 @@ GECamera::GECamera()
 	turnStep = 1.0f;
 	cosAngle = (float)cos(glm::radians(turnStep));
 	sinAngle = (float)sin(glm::radians(turnStep));
-
-	turnLeftPressed = false;
-	turnRightPressed = false;
-	turnUpPressed = false;
-	turnDownPressed = false;
-	turnCWPressed = false;
-	turnCCWPressed = false;
-	moveLeftPressed = false;
-	moveRightPressed = false;
-	moveUpPressed = false;
-	moveDownPressed = false;
 }
 
 //
@@ -147,85 +136,33 @@ float GECamera::getTurnStep()
 //
 // PROPÓSITO: Actualiza la posición y orientación de la cámara 
 //
-void GECamera::update()
+void GECamera::update(float deltaTime)
 {
-	if (turnLeftPressed && !turnRightPressed) turnLeft();
-	if (!turnLeftPressed && turnRightPressed) turnRight();
-	if (turnUpPressed && !turnDownPressed) turnUp();
-	if (!turnUpPressed && turnDownPressed) turnDown();
-	if (turnCWPressed && !turnCCWPressed) turnCW();
-	if (!turnCWPressed && turnCCWPressed) turnCCW();
-	if (moveLeftPressed && !moveRightPressed) moveLeft();
-	if (!moveLeftPressed && moveRightPressed) moveRight();
-	if (moveUpPressed && !moveDownPressed) moveUp();
-	if (!moveUpPressed && moveDownPressed) moveDown();
-
-	moveFront();
+	move(deltaTime);
 }
 
-//
-// FUNCIÓN: GECamera::moveFront()
-//
-// PROPÓSITO: Mueve el observador un paso (moveStep) en la dirección -Dir 
-//
-void GECamera::moveFront()
+// PROPOSITO: Mueve el observador un paso (moveStep) en la dirección -Dir 
+void GECamera::move(float deltaTime)
 {
-	Pos -= moveStep * Dir;
+	glm::vec3 forwardMove = glm::normalize(glm::vec3(Dir.x, 0.0f, Dir.z)) * cameraMoveDirection.z;
+	glm::vec3 rightMove = Right * -cameraMoveDirection.x;
+	glm::vec3 upMove = glm::vec3(0.0f, 1.0f, 0.0f) * cameraMoveDirection.y;
+	glm::vec3 moveVector = forwardMove + rightMove + upMove;
+
+	// Normalizar para evitar mayor velocidad en diagonales
+	if (glm::length(moveVector) > 0.0f) {
+		moveVector = glm::normalize(moveVector);
+	}
+
+	Pos -= moveVector * deltaTime * cameraSpeed;
 }
 
-//
-// FUNCIÓN: GECamera::moveBack()
-//
-// PROPÓSITO: Mueve el observador un paso (moveStep) hacia atrás en la dirección Dir 
-//
-void GECamera::moveBack()
+// PROPOSITO: Mueve el observador un paso (moveStep) en la dirección -Dir 
+void GECamera::rotate(float deltaTime)
 {
-	Pos += moveStep * Dir;
+	
 }
 
-//
-// FUNCIÓN: GECamera::moveLeft()
-//
-// PROPÓSITO: Mueve el observador un paso (moveStep) hacia la izquierda. 
-//
-void GECamera::moveLeft()
-{
-//	Pos -= moveStep * Right;
-	Pos -= 0.1f * Right;
-}
-
-//
-// FUNCIÓN: GECamera::moveRight()
-//
-// PROPÓSITO: Mueve el observador un paso (moveStep) hacia la derecha. 
-//
-void GECamera::moveRight()
-{
-//	Pos += moveStep * Right;
-	Pos += 0.1f * Right;
-}
-
-//
-// FUNCIÓN: GECamera::moveUp()
-//
-// PROPÓSITO: Mueve el observador un paso (moveStep) hacia arriba. 
-//
-void GECamera::moveUp()
-{
-//	Pos += moveStep * Up;
-	Pos += 0.1f * Up;
-}
-
-//
-// FUNCIÓN: GECamera::moveDown()
-//
-// PROPÓSITO: Mueve el observador un paso (moveStep) hacia abajo. 
-//
-void GECamera::moveDown()
-{
-//	Pos -= moveStep * Up;
-	Pos -= 0.1f * Up;
-}
 
 //
 // FUNCIÓN: GECamera::turnRight()
@@ -315,104 +252,4 @@ void GECamera::turnCCW()
 
 	// Right = Up x Dir
 	Right = glm::cross(Up, Dir);
-}
-
-//
-// FUNCIÓN: GECamera::setTurnLeft(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el giro a la izquierda
-//
-void GECamera::setTurnLeft(bool flag)
-{
-	turnLeftPressed = flag;
-}
-
-//
-// FUNCIÓN: GECamera::setTurnRight(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el giro a la derecha
-//
-void GECamera::setTurnRight(bool flag)
-{
-	turnRightPressed = flag;
-}
-
-//
-// FUNCIÓN: GECamera::setTurnUp(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el giro hacia arriba
-//
-void GECamera::setTurnUp(bool flag)
-{
-	turnUpPressed = flag;
-}
-
-//
-// FUNCIÓN: GECamera::setTurnDown(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el giro hacia abajo
-//
-void GECamera::setTurnDown(bool flag)
-{
-	turnDownPressed = flag;
-}
-
-//
-// FUNCIÓN: GECamera::setTurnCW(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el giro horario
-//
-void GECamera::setTurnCW(bool flag)
-{
-	turnCWPressed = flag;
-}
-
-//
-// FUNCIÓN: GECamera::setTurnCCW(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el giro antihorario
-//
-void GECamera::setTurnCCW(bool flag)
-{
-	turnCCWPressed = flag;
-}
-
-//
-// FUNCIÓN: GECamera::setMoveLeft(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el desplazamiento a la izquierda
-//
-void GECamera::setMoveLeft(bool flag)
-{
-	moveLeftPressed = flag;
-}
-
-//
-// FUNCIÓN: GECamera::setMoveRight(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el desplazamiento a la derecha
-//
-void GECamera::setMoveRight(bool flag)
-{
-	moveRightPressed = flag;
-}
-
-//
-// FUNCIÓN: GECamera::setMoveUp(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el desplazamiento hacia arriba
-//
-void GECamera::setMoveUp(bool flag)
-{
-	moveUpPressed = flag;
-}
-
-//
-// FUNCIÓN: GECamera::setMoveDown(bool flag)
-//
-// PROPÓSITO: Activa o desactiva el desplazamiento hacia abajo
-//
-void GECamera::setMoveDown(bool flag)
-{
-	moveDownPressed = flag;
 }

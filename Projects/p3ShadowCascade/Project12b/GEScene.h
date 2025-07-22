@@ -12,6 +12,7 @@
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include <unordered_map>
 
 //
 // CLASE: GEScene
@@ -28,6 +29,9 @@ private:
 	std::vector<GETexture*> textures;
 	GECamera* camera;
 	glm::mat4 projection;
+	std::unordered_map<int, bool> keyStates;
+	float deltaTime;
+	std::chrono::steady_clock::time_point lastTime;
 
 public:
 	GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* cc);
@@ -36,6 +40,7 @@ public:
 	void update(GEGraphicsContext* gc, uint32_t index);
 	void key_action(int key, bool pressed);
 	void aspect_ratio(double aspect);
+	void calculateDeltaTime();
 
 private:
 	void fillCommandBuffers(GECommandContext* cc);
