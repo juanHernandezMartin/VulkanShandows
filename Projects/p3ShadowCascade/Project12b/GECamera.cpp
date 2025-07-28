@@ -139,6 +139,7 @@ float GECamera::getTurnStep()
 void GECamera::update(float deltaTime)
 {
 	move(deltaTime);
+	rotate(deltaTime);
 }
 
 // PROPOSITO: Mueve el observador un paso (moveStep) en la dirección -Dir 
@@ -160,96 +161,33 @@ void GECamera::move(float deltaTime)
 // PROPOSITO: Mueve el observador un paso (moveStep) en la dirección -Dir 
 void GECamera::rotate(float deltaTime)
 {
-	
+	float xOffset = cameraRotationSpeed * cameraRotateDirection.x * deltaTime;
+	float yOffset = cameraRotationSpeed * cameraRotateDirection.y * deltaTime;;
+
+	// Calcular ángulos de rotación usando trigonometría
+	float cosYaw = cos(glm::radians(xOffset));
+	float sinYaw = sin(glm::radians(xOffset));
+	float cosPitch = cos(glm::radians(yOffset));
+	float sinPitch = sin(glm::radians(yOffset));
+
+	// Rotar la dirección de la cámara (horizontalmente)
+	glm::vec3 newDir;
+	newDir.x = cosYaw * Dir.x - sinYaw * Dir.z;
+	newDir.z = sinYaw * Dir.x + cosYaw * Dir.z;
+	newDir.y = Dir.y;  // Mantiene la altura estable en la rotación horizontal
+
+	// Aplicar el límite en el movimiento vertical
+	newDir.y += sinPitch;
+	if (newDir.y > 0.99f) newDir.y = 0.99f;  // Limitar la inclinación hacia arriba
+	if (newDir.y < -0.99f) newDir.y = -0.99f;  // Limitar la inclinación hacia abajo
+
+	// Normalizar el vector para mantener la magnitud correcta
+	Dir = glm::normalize(newDir);
+
+	// Recalcular los ejes Right y Up para que la cámara siempre esté nivelada
+	Right = glm::normalize(glm::cross(Dir, glm::vec3(0.0f, 1.0f, 0.0f)));
+	Up = glm::normalize(glm::cross(Right, Dir));
 }
 
 
-//
-// FUNCIÓN: GECamera::turnRight()
-//
-// PROPÓSITO: Rota el observador un paso (angleStep) hacia su derecha.
-//
-void GECamera::turnRight()
-{
-	Dir.x = cosAngle * Dir.x - sinAngle * Right.x;
-	Dir.y = cosAngle * Dir.y - sinAngle * Right.y;
-	Dir.z = cosAngle * Dir.z - sinAngle * Right.z;
 
-	// Right = Up x Dir
-	Right = glm::cross(Up, Dir);
-}
-
-//
-// FUNCIÓN: CACamera::turnLeft()
-//
-// PROPÓSITO: Rota el observador un paso (angleStep) hacia su izquierda.
-//
-void GECamera::turnLeft()
-{
-	Dir.x = cosAngle * Dir.x + sinAngle * Right.x;
-	Dir.y = cosAngle * Dir.y + sinAngle * Right.y;
-	Dir.z = cosAngle * Dir.z + sinAngle * Right.z;
-
-	// Right = Up x Dir
-	Right = glm::cross(Up, Dir);
-}
-
-//
-// FUNCIÓN: GECamera::turnUp()
-//
-// PROPÓSITO: Rota el observador un paso (angleStep) hacia arriba.
-//
-void GECamera::turnUp()
-{
-	Dir.x = cosAngle * Dir.x - sinAngle * Up.x;
-	Dir.y = cosAngle * Dir.y - sinAngle * Up.y;
-	Dir.z = cosAngle * Dir.z - sinAngle * Up.z;
-
-	// Up = Dir x Right
-	Up = glm::cross(Dir, Right);
-}
-
-//
-// FUNCIÓN: GECamera::turnDown()
-//
-// PROPÓSITO: Rota el observador un paso (angleStep) hacia abajo.
-//
-void GECamera::turnDown()
-{
-	Dir.x = cosAngle * Dir.x + sinAngle * Up.x;
-	Dir.y = cosAngle * Dir.y + sinAngle * Up.y;
-	Dir.z = cosAngle * Dir.z + sinAngle * Up.z;
-
-	// Up = Dir x Right
-	Up = glm::cross(Dir, Right);
-}
-
-//
-// FUNCIÓN: GECamera::turnCW()
-//
-// PROPÓSITO: Rota el observador un paso (angleStep) en sentido del reloj.
-//
-void GECamera::turnCW()
-{
-	Up.x = cosAngle * Up.x + sinAngle * Right.x;
-	Up.y = cosAngle * Up.y + sinAngle * Right.y;
-	Up.z = cosAngle * Up.z + sinAngle * Right.z;
-
-	// Right = Up x Dir
-	Right = glm::cross(Up, Dir);
-}
-
-//
-// FUNCIÓN: GECamera::turnCCW()
-//
-// PROPÓSITO: Rota el observador un paso (angleStep) en sentido contrario al reloj.
-//
-void GECamera::turnCCW()
-{
-	Up.x = cosAngle * Up.x - sinAngle * Right.x;
-	Up.y = cosAngle * Up.y - sinAngle * Right.y;
-	Up.z = cosAngle * Up.z - sinAngle * Right.z;
-
-	// Right = Up x Dir
-	Right = glm::cross(Up, Dir);
-}

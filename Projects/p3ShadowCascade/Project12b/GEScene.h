@@ -13,6 +13,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <unordered_map>
+#include <chrono>
 
 //
 // CLASE: GEScene

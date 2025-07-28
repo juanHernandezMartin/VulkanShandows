@@ -7,8 +7,8 @@ public:
 	GECamera();
 	glm::mat4 getViewMatrix();
 
-	float cameraSpeed = 25.0f;
-	float cameraRotationSpeed = 1.0f;
+	float cameraSpeed = 30.0f;
+	float cameraRotationSpeed = 70.0f;
 	glm::vec3 cameraMoveDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec2 cameraRotateDirection = glm::vec2(0.0f, 0.0f);
 
@@ -26,13 +26,6 @@ public:
 	void update(float deltaTime);
 	void move(float deltaTime);
 	void rotate(float deltaTime);
-
-	void turnRight();
-	void turnLeft();
-	void turnUp();
-	void turnDown();
-	void turnCW();
-	void turnCCW();
 
 private:
 	glm::vec3 Pos;

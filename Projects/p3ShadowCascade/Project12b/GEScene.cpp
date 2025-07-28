@@ -253,6 +253,7 @@ void GEScene::key_action(int key, bool pressed)
 
 	// Restablecer movimiento antes de aplicar cambios
 	camera->cameraMoveDirection = glm::vec3(0.0f);
+	camera->cameraRotateDirection = glm::vec2(0.0f);
 
 	// Aplicar movimiento en función de teclas activas
 	if (keyStates[GLFW_KEY_W]) camera->cameraMoveDirection.z = 1.0f;
@@ -262,10 +263,10 @@ void GEScene::key_action(int key, bool pressed)
 	if (keyStates[GLFW_KEY_Q]) camera->cameraMoveDirection.y = 1.0f;
 	if (keyStates[GLFW_KEY_E]) camera->cameraMoveDirection.y = -1.0f;
 
-	if (keyStates[GLFW_KEY_UP]) camera->turnDown();
-	if (keyStates[GLFW_KEY_DOWN]) camera->turnUp();
-	if (keyStates[GLFW_KEY_LEFT]) camera->turnLeft();
-	if (keyStates[GLFW_KEY_RIGHT]) camera->turnRight();
+	if (keyStates[GLFW_KEY_UP]) camera->cameraRotateDirection.y = -1.0f;
+	if (keyStates[GLFW_KEY_DOWN]) camera->cameraRotateDirection.y = 1.0f;
+	if (keyStates[GLFW_KEY_LEFT]) camera->cameraRotateDirection.x = -1.0f;
+	if (keyStates[GLFW_KEY_RIGHT]) camera->cameraRotateDirection.x = 1.0f;
 }
 
 //
@@ -275,7 +276,7 @@ void GEScene::key_action(int key, bool pressed)
 //
 void GEScene::aspect_ratio(double aspect)
 {
-	constexpr double fov = glm::radians(30.0f);
+	constexpr double fov = glm::radians(70.0f);
 	double sin_fov = sin(fov);
 	double cos_fov = cos(fov);
 	float wHeight = (float)(sin_fov * 0.2 / cos_fov);
