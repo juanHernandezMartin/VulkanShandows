@@ -226,18 +226,19 @@ void GEScene::update(GEGraphicsContext* gc, uint32_t index)
 {
 	calculateDeltaTime();
 	camera->update(deltaTime);
-	glm::mat4 view = camera->getViewMatrix();
 
+	glm::mat4 view = camera->getViewMatrix();
+	
 	skybox->update(gc, index, view, projection);
 
-	glm::mat4 lightView = getLightViewMatrix();
-	glm::mat4 lightPerspective = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, -300.0f, 300.0f);
-	lightPerspective[1][1] *= -1.0f;
+	glm::vec3 playerPos = camera->getPosition();
+	glm::mat4 lightView = getLightViewMatrix(playerPos);
+	glm::mat4 shadowProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, -300.0f, 300.0f);
+	glm::mat4 lightVP = shadowProjection * lightView;
 
-	glm::mat4 lightVP = lightPerspective * lightView;
 	for (int i = 0; i < figures.size(); i++)
 	{
-		figures[i]->updateShadow(gc, index, lightView, lightPerspective);
+		figures[i]->updateShadow(gc, index, lightView, shadowProjection);
 		figures[i]->update(gc, index, view, projection, lightVP);
 	}
 }
@@ -455,19 +456,18 @@ GEPipelineConfig* GEScene::createShadowPipelineConfig(VkExtent2D extent)
 //
 // PROPÓSITO: Obtiene la matriz de posicionamiento de la luz
 //
-glm::mat4 GEScene::getLightViewMatrix()
+glm::mat4 GEScene::getLightViewMatrix(glm::vec3 playerPosition)
 {
-	glm::vec3 Ldir = glm::normalize(glm::vec3(1.0f, -0.8f, -0.7f));
+	// Dirección de la luz (puede ajustarse)
+	glm::vec3 Ldir = glm::normalize(glm::vec3(0.1f, -1.0f, 0.1f));
 
-	glm::vec3 Zdir = -Ldir;
-	glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 Xdir = glm::normalize(glm::cross(Up, Zdir));
-	glm::vec3 Ydir = glm::normalize(glm::cross(Zdir, Xdir));
-	glm::vec3 Zpos = 100.0f * Zdir;
-	glm::vec3 Center = glm::vec3(0.0f, 0.0f, 0.0f);
+	// Posición de la luz siguiendo al jugador
+	glm::vec3 lightPos = playerPosition - Ldir * 100.0f;
 
-	glm::mat4 view = glm::lookAt(Zpos, Center, Ydir);
-	return view;
+	// Eje 'Up' (puede ajustarse si da problemas)
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	return glm::lookAt(lightPos, playerPosition, up);
 }
 
 

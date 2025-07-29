@@ -48,6 +48,6 @@ private:
 	GEPipelineConfig* createSkyboxPipelineConfig(VkExtent2D extent);
 	GEPipelineConfig* createScenePipelineConfig(VkExtent2D extent);
 	GEPipelineConfig* createShadowPipelineConfig(VkExtent2D extent);
-	glm::mat4 getLightViewMatrix();
+	glm::mat4 getLightViewMatrix(glm::vec3 playerPosition);
 };
 
