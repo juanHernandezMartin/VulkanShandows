@@ -69,7 +69,7 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 	groundMat.Ks = glm::vec3(0.8f, 0.8f, 0.8f);
 	groundMat.Shininess = 16.0f;
 
-	GEFigure* ground = new GEGround(50.0f, 50.0f);
+	GEFigure* ground = new GEGround(300.0f, 300.0f);
 	ground->setTexture(textures[2]);
 	ground->initialize(gc, rc, shadow_rc);
 	ground->setMaterial(groundMat);
@@ -231,7 +231,7 @@ void GEScene::update(GEGraphicsContext* gc, uint32_t index)
 	skybox->update(gc, index, view, projection);
 
 	glm::mat4 lightView = getLightViewMatrix();
-	glm::mat4 lightPerspective = glm::ortho(-150.0f, 150.0f, -150.0f, 150.0f, -300.0f, 300.0f);
+	glm::mat4 lightPerspective = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, -300.0f, 300.0f);
 	lightPerspective[1][1] *= -1.0f;
 
 	glm::mat4 lightVP = lightPerspective * lightView;
@@ -267,6 +267,9 @@ void GEScene::key_action(int key, bool pressed)
 	if (keyStates[GLFW_KEY_DOWN]) camera->cameraRotateDirection.y = 1.0f;
 	if (keyStates[GLFW_KEY_LEFT]) camera->cameraRotateDirection.x = -1.0f;
 	if (keyStates[GLFW_KEY_RIGHT]) camera->cameraRotateDirection.x = 1.0f;
+
+	camera->isSprinting = false;
+	if (keyStates[GLFW_KEY_LEFT_SHIFT]) camera->isSprinting = true;
 }
 
 //

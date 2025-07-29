@@ -155,6 +155,10 @@ void GECamera::move(float deltaTime)
 		moveVector = glm::normalize(moveVector);
 	}
 
+	if (isSprinting) {
+		moveVector *= sprintMultiplier;  // Aumentar la velocidad si se está corriendo
+	}
+	
 	Pos -= moveVector * deltaTime * cameraSpeed;
 }
 

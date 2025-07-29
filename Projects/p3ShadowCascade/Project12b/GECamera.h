@@ -11,6 +11,8 @@ public:
 	float cameraRotationSpeed = 70.0f;
 	glm::vec3 cameraMoveDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec2 cameraRotateDirection = glm::vec2(0.0f, 0.0f);
+	bool isSprinting = false;
+	float sprintMultiplier = 2.5f;
 
 	void setPosition(glm::vec3 pos);
 	void setDirection(glm::vec3 dir, glm::vec3 up);
