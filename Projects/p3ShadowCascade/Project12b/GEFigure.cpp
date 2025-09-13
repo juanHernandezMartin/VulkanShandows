@@ -41,10 +41,15 @@ void GEFigure::initialize(GEGraphicsContext* gc, GERenderingContext* rc, GERende
 	dset = new GEDescriptorSet(gc, rc, ubos, tex, shadow_rc);
 
 	size_t shadowTransformBufferSize = sizeof(GEShadowTransform);
-	shadowTransformBuffer = new GEUniformBuffer(gc, rc->imageCount, shadowTransformBufferSize);
+	shadowTransformBuffer1 = new GEUniformBuffer(gc, rc->imageCount, shadowTransformBufferSize);
+	shadowTransformBuffer2 = new GEUniformBuffer(gc, rc->imageCount, shadowTransformBufferSize);
+	shadowTransformBuffer3 = new GEUniformBuffer(gc, rc->imageCount, shadowTransformBufferSize);
 
-	std::vector<GEUniformBuffer*> shadow_ubos(1);
-	shadow_ubos[0] = shadowTransformBuffer;
+	std::vector<GEUniformBuffer*> shadow_ubos(3);
+	shadow_ubos[0] = shadowTransformBuffer1;
+	shadow_ubos[1] = shadowTransformBuffer2;
+	shadow_ubos[2] = shadowTransformBuffer3;
+
 
 	std::vector<GETexture*> shadow_tex(0);
 
@@ -65,7 +70,9 @@ void GEFigure::destroy(GEGraphicsContext* gc)
 	transformBuffer->destroy(gc);
 	materialBuffer->destroy(gc);
 	lightBuffer->destroy(gc);
-	shadowTransformBuffer->destroy(gc);
+	shadowTransformBuffer1->destroy(gc);
+	shadowTransformBuffer2->destroy(gc);
+	shadowTransformBuffer3->destroy(gc);
 	dset->destroy(gc);
 	shadowDset->destroy(gc);
 
@@ -74,7 +81,9 @@ void GEFigure::destroy(GEGraphicsContext* gc)
 	delete transformBuffer;
 	delete materialBuffer;
 	delete lightBuffer;
-	delete shadowTransformBuffer;
+	delete shadowTransformBuffer1;
+	delete shadowTransformBuffer2;
+	delete shadowTransformBuffer3;
 	delete dset;
 	delete shadowDset;
 }
@@ -112,13 +121,15 @@ void GEFigure::addShadowCommands(VkCommandBuffer commandBuffer, VkPipelineLayout
 //
 // PROPÓSITO: Actualiza las variables uniformes sobre una imagen del swapchain
 //
-void GEFigure::update(GEGraphicsContext* gc, uint32_t index, glm::mat4 view, glm::mat4 projection, glm::mat4 lightView)
+void GEFigure::update(GEGraphicsContext* gc, uint32_t index, glm::mat4 view, glm::mat4 projection, glm::mat4 lightView1, glm::mat4 lightView2, glm::mat4 lightView3)
 {
 	GETransform transform;
 	transform.MVP = projection * view * location;
 	transform.ModelViewMatrix = view * location;
 	transform.ViewMatrix = view;
-	transform.ShadowMatrix = lightView * location;
+	transform.ShadowMatrix1 = lightView1 * location;
+	transform.ShadowMatrix2 = lightView2 * location;
+	transform.ShadowMatrix3 = lightView3 * location;
 
 	transformBuffer->update(gc, index, sizeof(GETransform), &transform);
 	materialBuffer->update(gc, index, sizeof(GEMaterial), &material);
@@ -130,12 +141,18 @@ void GEFigure::update(GEGraphicsContext* gc, uint32_t index, glm::mat4 view, glm
 //
 // PROPÓSITO: Actualiza las variables uniformes sobre una imagen del swapchain
 //
-void GEFigure::updateShadow(GEGraphicsContext* gc, uint32_t index, glm::mat4 view, glm::mat4 projection)
+void GEFigure::updateShadow(GEGraphicsContext* gc, uint32_t index, glm::mat4 view, glm::mat4 projection1, glm::mat4 projection2, glm::mat4 projection3)
 {
-	GEShadowTransform transform;
-	transform.MVP = projection * view * location;
+	GEShadowTransform transform1;
+	transform1.MVP = projection1 * view * location;
+	GEShadowTransform transform2;
+	transform2.MVP = projection2 * view * location;
+	GEShadowTransform transform3;
+	transform3.MVP = projection3 * view * location;
 
-	shadowTransformBuffer->update(gc, index, sizeof(GEShadowTransform), &transform);
+	shadowTransformBuffer1->update(gc, index, sizeof(GEShadowTransform), &transform1);
+	shadowTransformBuffer2->update(gc, index, sizeof(GEShadowTransform), &transform2);
+	shadowTransformBuffer3->update(gc, index, sizeof(GEShadowTransform), &transform3);
 }
 
 //

@@ -23,6 +23,7 @@ void GEApplication::run()
 	this->cc = new GECommandContext(this->gc, this->dc->getImageCount());
 
 	this->scene = new GEScene(gc, dc, cc);
+	std::cout << "antes de main loop" << std::endl;
 
 	mainLoop();
 

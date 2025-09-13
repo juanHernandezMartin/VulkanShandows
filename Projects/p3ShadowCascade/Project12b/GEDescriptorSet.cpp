@@ -14,7 +14,8 @@ GEDescriptorSet::GEDescriptorSet(GEGraphicsContext* gc, GERenderingContext* rc, 
 	uint32_t bufferCount = (uint32_t) ubos.size();
 	uint32_t textureCount = (uint32_t)tex.size();
 	uint32_t imageCount = rc->imageCount;
-	if (shadow_rc != nullptr) textureCount++;
+
+	if (shadow_rc != nullptr) textureCount += 3;
 
 	std::vector<VkDescriptorPoolSize> poolSizes(bufferCount+textureCount);
 

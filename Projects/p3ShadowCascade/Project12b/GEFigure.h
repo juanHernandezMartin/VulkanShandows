@@ -34,8 +34,8 @@ public:
 	void destroy(GEGraphicsContext* gc);
 	void addCommands(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, int index);
 	void addShadowCommands(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, int index);
-	void update(GEGraphicsContext* gc, uint32_t index, glm::mat4 view, glm::mat4 projection, glm::mat4 lightView);
-	void updateShadow(GEGraphicsContext* gc, uint32_t index, glm::mat4 view, glm::mat4 projection);
+	void update(GEGraphicsContext* gc, uint32_t index, glm::mat4 view, glm::mat4 projection, glm::mat4 lightView1, glm::mat4 lightView2, glm::mat4 lightView3);
+	void updateShadow(GEGraphicsContext* gc, uint32_t index, glm::mat4 view, glm::mat4 projection1, glm::mat4 projection2, glm::mat4 projection3);
 	void resetLocation();
 	void setLocation(glm::mat4 m);
 	void translate(glm::vec3 t);
@@ -50,7 +50,9 @@ private:
 	GEUniformBuffer* transformBuffer;
 	GEUniformBuffer* materialBuffer;
 	GEUniformBuffer* lightBuffer;
-	GEUniformBuffer* shadowTransformBuffer;
+	GEUniformBuffer* shadowTransformBuffer1;
+	GEUniformBuffer* shadowTransformBuffer2;
+	GEUniformBuffer* shadowTransformBuffer3;
 	GEDescriptorSet* dset;
 	GEDescriptorSet* shadowDset;
 };

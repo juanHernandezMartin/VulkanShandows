@@ -43,9 +43,13 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 	GEPipelineConfig* shadow_config = createShadowPipelineConfig(shadowExtent);
 	shadow_rc = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
 
+	std::cout<<"Creando camara"<<std::endl;
+
 	this->camera = new GECamera();
 	this->camera->setPosition(glm::vec3(0.0f, 20.0f, 100.0f));
 	this->camera->setMoveStep(0.0f);
+
+	std::cout << "Creando skybox" << std::endl;
 
 	rc->setActivePipeline(SKYBOX_PIPELINE);
 	this->skybox = new GESkybox(gc,rc);
@@ -58,11 +62,13 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 	textures[2] = new GETexture(gc, "textures/wood.jpg");
 
 	GELight light = {};
-	light.Ldir = glm::normalize(glm::vec3(1.0f, -0.8f, -0.7f));
+	light.Ldir = glm::normalize(glm::vec3(0.25f, -1.0f, 0.25f));
 	light.La = glm::vec3(0.1f, 0.1f, 0.1f);
 	light.Ld = glm::vec3(0.9f, 0.9f, 0.9f);
 	light.Ls = glm::vec3(1.0f, 1.0f, 1.0f);
 
+
+	std::cout<<"creando tierra"<<std::endl;
 	GEMaterial groundMat = {};
 	groundMat.Ka = glm::vec3(1.0f, 1.0f, 1.0f);
 	groundMat.Kd = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -74,6 +80,8 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 	ground->initialize(gc, rc, shadow_rc);
 	ground->setMaterial(groundMat);
 	ground->setLight(light);
+
+	std::cout<<("creando figura 1") << std::endl;
 
 	GEMaterial fig1Mat = {};
 	fig1Mat.Ka = glm::vec3(1.0f, 0.0f, 1.0f);
@@ -88,6 +96,8 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 	fig1->rotate(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	fig1->setMaterial(fig1Mat);
 	fig1->setLight(light);
+
+	std::cout << ("creando figura 2") << std::endl;
 
 	GEMaterial fig2Mat = {};
 	fig2Mat.Ka = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -233,13 +243,17 @@ void GEScene::update(GEGraphicsContext* gc, uint32_t index)
 
 	glm::vec3 playerPos = camera->getPosition();
 	glm::mat4 lightView = getLightViewMatrix(playerPos);
-	glm::mat4 shadowProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, -300.0f, 300.0f);
-	glm::mat4 lightVP = shadowProjection * lightView;
+	glm::mat4 shadowProjection1 = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, -300.0f, 300.0f);
+	glm::mat4 shadowProjection2 = glm::ortho(-200.0f, 200.0f, -200.0f, 200.0f, -300.0f, 300.0f);
+	glm::mat4 shadowProjection3 = glm::ortho(-300.0f, 300.0f, -300.0f, 300.0f, -300.0f, 300.0f);
+	glm::mat4 lightVP1 = shadowProjection1 * lightView;
+	glm::mat4 lightVP2 = shadowProjection2 * lightView;
+	glm::mat4 lightVP3 = shadowProjection3 * lightView;
 
 	for (int i = 0; i < figures.size(); i++)
 	{
-		figures[i]->updateShadow(gc, index, lightView, shadowProjection);
-		figures[i]->update(gc, index, view, projection, lightVP);
+		figures[i]->updateShadow(gc, index, lightView, shadowProjection1, shadowProjection2, shadowProjection3);
+		figures[i]->update(gc, index, view, projection, lightVP1, lightVP2, lightVP3);
 	}
 }
 
@@ -383,6 +397,7 @@ GEPipelineConfig* GEScene::createSkyboxPipelineConfig(VkExtent2D extent)
 //
 GEPipelineConfig* GEScene::createScenePipelineConfig(VkExtent2D extent)
 {
+
 	GEPipelineConfig* config = new GEPipelineConfig();
 	config->vertex_shader = IDR_HTML3;
 	config->fragment_shader = IDR_HTML4;
@@ -392,23 +407,28 @@ GEPipelineConfig* GEScene::createScenePipelineConfig(VkExtent2D extent)
 	config->attrOffsets[0] = offsetof(GEVertex, pos);
 	config->attrOffsets[1] = offsetof(GEVertex, norm);
 	config->attrOffsets[2] = offsetof(GEVertex, tex);
+
 	config->attrFormats.resize(3);
 	config->attrFormats[0] = VK_FORMAT_R32G32B32_SFLOAT;
 	config->attrFormats[1] = VK_FORMAT_R32G32B32_SFLOAT;
 	config->attrFormats[2] = VK_FORMAT_R32G32_SFLOAT;
 
-	config->descriptorTypes.resize(5);
+	config->descriptorTypes.resize(7);
 	config->descriptorTypes[0] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	config->descriptorTypes[1] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	config->descriptorTypes[2] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	config->descriptorTypes[3] = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	config->descriptorTypes[4] = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	config->descriptorStages.resize(5);
+	config->descriptorTypes[5] = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	config->descriptorTypes[6] = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	config->descriptorStages.resize(7);
 	config->descriptorStages[0] = VK_SHADER_STAGE_ALL_GRAPHICS;
 	config->descriptorStages[1] = VK_SHADER_STAGE_FRAGMENT_BIT;
 	config->descriptorStages[2] = VK_SHADER_STAGE_FRAGMENT_BIT;
 	config->descriptorStages[3] = VK_SHADER_STAGE_FRAGMENT_BIT;
 	config->descriptorStages[4] = VK_SHADER_STAGE_FRAGMENT_BIT;
+	config->descriptorStages[5] = VK_SHADER_STAGE_FRAGMENT_BIT;
+	config->descriptorStages[6] = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	config->depthTestEnable = VK_TRUE;
 	config->cullMode = VK_CULL_MODE_BACK_BIT;
@@ -424,6 +444,7 @@ GEPipelineConfig* GEScene::createScenePipelineConfig(VkExtent2D extent)
 //
 GEPipelineConfig* GEScene::createShadowPipelineConfig(VkExtent2D extent)
 {
+	std::cout << "Creating shadow pipeline config" << std::endl;
 	GEPipelineConfig* config = new GEPipelineConfig();
 	config->vertex_shader = IDR_HTML5;
 	config->fragment_shader = IDR_HTML6;
@@ -447,7 +468,7 @@ GEPipelineConfig* GEScene::createShadowPipelineConfig(VkExtent2D extent)
 	config->depthTestEnable = VK_TRUE;
 	config->cullMode = VK_CULL_MODE_FRONT_BIT;
 	config->extent = extent;
-
+	std::cout << "Created shadow pipeline config" << std::endl;
 	return config;
 }
 
@@ -459,7 +480,7 @@ GEPipelineConfig* GEScene::createShadowPipelineConfig(VkExtent2D extent)
 glm::mat4 GEScene::getLightViewMatrix(glm::vec3 playerPosition)
 {
 	// Dirección de la luz (puede ajustarse)
-	glm::vec3 Ldir = glm::normalize(glm::vec3(0.1f, -1.0f, 0.1f));
+	glm::vec3 Ldir = glm::normalize(glm::vec3(0.25f, -1.0f, 0.25f));
 
 	// Posición de la luz siguiendo al jugador
 	glm::vec3 lightPos = playerPosition - Ldir * 100.0f;

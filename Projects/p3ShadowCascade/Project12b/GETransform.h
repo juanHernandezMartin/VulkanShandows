@@ -10,5 +10,7 @@ typedef struct
 	alignas(16) glm::mat4 MVP;
 	alignas(16) glm::mat4 ViewMatrix;
 	alignas(16) glm::mat4 ModelViewMatrix;
-	alignas(16) glm::mat4 ShadowMatrix;
+	alignas(16) glm::mat4 ShadowMatrix1;
+	alignas(16) glm::mat4 ShadowMatrix2;
+	alignas(16) glm::mat4 ShadowMatrix3;
 } GETransform;
