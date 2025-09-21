@@ -91,20 +91,23 @@ void main()
 
   float shadow = 1.0;
 
-  if( shadowInRange(ShadowCoord3))
-  {
-    shadow = getSumShadow(ShadowMap3, ShadowCoord3);
-  }
-
-  if( shadowInRange(ShadowCoord2))
-  {
-    shadow = getSumShadow(ShadowMap2, ShadowCoord3);
-  }
 
   if( shadowInRange(ShadowCoord1))
   {
     shadow = getSumShadow(ShadowMap1, ShadowCoord1);
   }
+  else if( shadowInRange(ShadowCoord2))
+  {
+    shadow = getSumShadow(ShadowMap2, ShadowCoord2);
+  }
+  else if( shadowInRange(ShadowCoord3))
+  {
+    shadow = getSumShadow(ShadowMap3, ShadowCoord3);
+  }
+
+  
+
+  
   
   FragColor = vec4(shadow * diffAndSpec + ambient, 1.0);
 }

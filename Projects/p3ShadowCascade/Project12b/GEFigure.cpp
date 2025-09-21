@@ -14,7 +14,7 @@
 //
 // PROPÓSITO: Crea la figura
 //
-void GEFigure::initialize(GEGraphicsContext* gc, GERenderingContext* rc, GERenderingContext* shadow_rc)
+void GEFigure::initialize(GEGraphicsContext* gc, GERenderingContext* rc, GERenderingContext* shadow_rc1, GERenderingContext* shadow_rc2, GERenderingContext* shadow_rc3)
 {
 	size_t vertexSize = sizeof(GEVertex) * vertices.size();
 	vbo = new GEVertexBuffer(gc, vertexSize, vertices.data());
@@ -38,7 +38,12 @@ void GEFigure::initialize(GEGraphicsContext* gc, GERenderingContext* rc, GERende
 
 	std::vector<GETexture*> tex(1);
 	tex[0] = texture;
-	dset = new GEDescriptorSet(gc, rc, ubos, tex, shadow_rc);
+
+	std::vector<GERenderingContext*> shadoVector;
+	shadoVector.push_back(shadow_rc1);
+	shadoVector.push_back(shadow_rc2);
+	shadoVector.push_back(shadow_rc3);
+	dset = new GEDescriptorSet(gc, rc, ubos, tex, shadoVector);
 
 	size_t shadowTransformBufferSize = sizeof(GEShadowTransform);
 	shadowTransformBuffer1 = new GEUniformBuffer(gc, rc->imageCount, shadowTransformBufferSize);
@@ -52,8 +57,10 @@ void GEFigure::initialize(GEGraphicsContext* gc, GERenderingContext* rc, GERende
 
 
 	std::vector<GETexture*> shadow_tex(0);
-
-	shadowDset = new GEDescriptorSet(gc, shadow_rc, shadow_ubos, shadow_tex, nullptr);
+	std::vector<GERenderingContext*> nullShadow;
+	shadowDset1 = new GEDescriptorSet(gc, shadow_rc1, shadow_ubos, shadow_tex, nullShadow);
+	shadowDset2 = new GEDescriptorSet(gc, shadow_rc2, shadow_ubos, shadow_tex, nullShadow);
+	shadowDset3 = new GEDescriptorSet(gc, shadow_rc3, shadow_ubos, shadow_tex, nullShadow);
 
 	location = glm::mat4(1.0f);
 }
@@ -74,7 +81,9 @@ void GEFigure::destroy(GEGraphicsContext* gc)
 	shadowTransformBuffer2->destroy(gc);
 	shadowTransformBuffer3->destroy(gc);
 	dset->destroy(gc);
-	shadowDset->destroy(gc);
+	shadowDset1->destroy(gc);
+	shadowDset2->destroy(gc);
+	shadowDset3->destroy(gc);
 
 	delete vbo;
 	delete ibo;
@@ -85,7 +94,9 @@ void GEFigure::destroy(GEGraphicsContext* gc)
 	delete shadowTransformBuffer2;
 	delete shadowTransformBuffer3;
 	delete dset;
-	delete shadowDset;
+	delete shadowDset1;
+	delete shadowDset2;
+	delete shadowDset3;
 }
 
 //
@@ -107,12 +118,40 @@ void GEFigure::addCommands(VkCommandBuffer commandBuffer, VkPipelineLayout pipel
 //
 // PROPÓSITO: Añade los comandos de renderizado al command buffer
 //
-void GEFigure::addShadowCommands(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, int index)
+void GEFigure::addShadowCommands1(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, int index)
 {
 	VkDeviceSize offset = 0;
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, &(vbo->buffer), &offset);
 	vkCmdBindIndexBuffer(commandBuffer, ibo->buffer, 0, VK_INDEX_TYPE_UINT16);
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &(shadowDset->descriptorSets[index]), 0, nullptr);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &(shadowDset1->descriptorSets[index]), 0, nullptr);
+	vkCmdDrawIndexed(commandBuffer, (uint32_t)indices.size(), 1, 0, 0, 0);
+}
+
+//
+// FUNCIÓN: CAFigure::addShadowCommands(VkCommandBuffer commandBuffer, int index)
+//
+// PROPÓSITO: Añade los comandos de renderizado al command buffer
+//
+void GEFigure::addShadowCommands2(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, int index)
+{
+	VkDeviceSize offset = 0;
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, &(vbo->buffer), &offset);
+	vkCmdBindIndexBuffer(commandBuffer, ibo->buffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &(shadowDset2->descriptorSets[index]), 0, nullptr);
+	vkCmdDrawIndexed(commandBuffer, (uint32_t)indices.size(), 1, 0, 0, 0);
+}
+
+//
+// FUNCIÓN: CAFigure::addShadowCommands(VkCommandBuffer commandBuffer, int index)
+//
+// PROPÓSITO: Añade los comandos de renderizado al command buffer
+//
+void GEFigure::addShadowCommands3(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, int index)
+{
+	VkDeviceSize offset = 0;
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, &(vbo->buffer), &offset);
+	vkCmdBindIndexBuffer(commandBuffer, ibo->buffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &(shadowDset3->descriptorSets[index]), 0, nullptr);
 	vkCmdDrawIndexed(commandBuffer, (uint32_t)indices.size(), 1, 0, 0, 0);
 }
 

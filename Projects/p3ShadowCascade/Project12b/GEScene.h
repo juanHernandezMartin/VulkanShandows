@@ -24,7 +24,9 @@ class GEScene
 {
 private:
 	GERenderingContext* rc;
-	GERenderingContext* shadow_rc;
+	GERenderingContext* shadow_rc1;
+	GERenderingContext* shadow_rc2;
+	GERenderingContext* shadow_rc3;
 	GESkybox* skybox;
 	std::vector<GEFigure*> figures;
 	std::vector<GETexture*> textures;

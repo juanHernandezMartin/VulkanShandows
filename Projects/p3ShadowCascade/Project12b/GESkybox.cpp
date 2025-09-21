@@ -51,7 +51,9 @@ GESkybox::GESkybox(GEGraphicsContext* gc, GERenderingContext* rc)
 	std::vector<GETexture*> tex(1);
 	tex[0] = cubemap;
 
-	dset = new GEDescriptorSet(gc, rc, ubos, tex, nullptr);
+	std::vector<GERenderingContext*> nullShadow;
+
+	dset = new GEDescriptorSet(gc, rc, ubos, tex, nullShadow);
 }
 
 //

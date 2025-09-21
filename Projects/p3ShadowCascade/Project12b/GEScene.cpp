@@ -41,7 +41,9 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 
 	VkExtent2D shadowExtent = { 1024, 1024 };
 	GEPipelineConfig* shadow_config = createShadowPipelineConfig(shadowExtent);
-	shadow_rc = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
+	shadow_rc1 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
+	shadow_rc2 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
+	shadow_rc3 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
 
 	std::cout<<"Creando camara"<<std::endl;
 
@@ -77,7 +79,7 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 
 	GEFigure* ground = new GEGround(300.0f, 300.0f);
 	ground->setTexture(textures[2]);
-	ground->initialize(gc, rc, shadow_rc);
+	ground->initialize(gc, rc, shadow_rc1, shadow_rc2, shadow_rc3);
 	ground->setMaterial(groundMat);
 	ground->setLight(light);
 
@@ -91,7 +93,7 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 
 	GEFigure* fig1 = new GECone(5, 20, 8.0f, 5.0f);
 	fig1->setTexture(textures[0]);
-	fig1->initialize(gc, rc, shadow_rc);
+	fig1->initialize(gc, rc, shadow_rc1, shadow_rc2, shadow_rc3);
 	fig1->translate(glm::vec3(25.0f, 8.0f, 25.0f));
 	fig1->rotate(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	fig1->setMaterial(fig1Mat);
@@ -107,7 +109,7 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 
 	GEFigure* fig2 = new GECube(6.0f);
 	fig2->setTexture(textures[0]);
-	fig2->initialize(gc, rc, shadow_rc);
+	fig2->initialize(gc, rc, shadow_rc1, shadow_rc2, shadow_rc3);
 	fig2->translate(glm::vec3(-25.0f, 6.0f, 25.0f));
 	fig2->rotate(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	fig2->setMaterial(fig2Mat);
@@ -121,7 +123,7 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 
 	GEFigure* fig3 = new GECylinder(20, 20, 5.0f, 8.0f);
 	fig3->setTexture(textures[0]);
-	fig3->initialize(gc, rc, shadow_rc);
+	fig3->initialize(gc, rc, shadow_rc1, shadow_rc2, shadow_rc3);
 	fig3->translate(glm::vec3(25.0f, 8.0f, 0.0f));
 	fig3->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	fig3->setMaterial(fig3Mat);
@@ -135,7 +137,7 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 
 	GEFigure* fig4 = new GETorus(20, 40, 3.0f, 5.0f);
 	fig4->setTexture(textures[0]);
-	fig4->initialize(gc, rc, shadow_rc);
+	fig4->initialize(gc, rc, shadow_rc1, shadow_rc2, shadow_rc3);
 	fig4->translate(glm::vec3(-25.0f, 8.0f, 0.0f));
 	fig4->setMaterial(fig4Mat);
 	fig4->setLight(light);
@@ -148,7 +150,7 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 
 	GEFigure* fig5 = new GESphere(20, 40, 8.0f);
 	fig5->setTexture(textures[1]);
-	fig5->initialize(gc, rc, shadow_rc);
+	fig5->initialize(gc, rc, shadow_rc1, shadow_rc2, shadow_rc3);
 	fig5->translate(glm::vec3(25.0f, 8.0f, -25.0f));
 	fig5->setMaterial(fig5Mat);
 	fig5->setLight(light);
@@ -161,7 +163,7 @@ GEScene::GEScene(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandContext* 
 
 	GEFigure* fig6 = new GEIcosahedron(5.0f);
 	fig6->setTexture(textures[0]);
-	fig6->initialize(gc, rc, shadow_rc);
+	fig6->initialize(gc, rc, shadow_rc1, shadow_rc2, shadow_rc3);
 	fig6->translate(glm::vec3(-25.0f, 8.0f, -25.0f));
 	fig6->setMaterial(fig6Mat);
 	fig6->setLight(light);
@@ -188,8 +190,13 @@ void GEScene::destroy(GEGraphicsContext* gc)
 	rc->destroy(gc);
 	delete rc;
 
-	shadow_rc->destroy(gc);
-	delete shadow_rc;
+	
+	shadow_rc1->destroy(gc);
+	shadow_rc2->destroy(gc);
+	shadow_rc3->destroy(gc);
+	delete shadow_rc1;
+	delete shadow_rc2;
+	delete shadow_rc3;
 
 	skybox->destroy(gc);
 	delete skybox;
@@ -222,7 +229,9 @@ void GEScene::recreate(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandCon
 
 	VkExtent2D shadowExtent = { 1024, 1024 };
 	GEPipelineConfig* shadow_config = createShadowPipelineConfig(shadowExtent);
-	shadow_rc = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
+	shadow_rc1 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
+	shadow_rc2 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
+	shadow_rc3 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
 
 	fillCommandBuffers(cc);
 }
@@ -313,26 +322,54 @@ void GEScene::fillCommandBuffers(GECommandContext* cc)
 {
 	cc->beginCommandBuffers();
 
-	/* Renderpass del shadowmap */
+	/* Renderpass del shadowmap 1 */
+	shadow_rc1->insertBeginCommands(cc->commandBuffers, true);
 
-	shadow_rc->insertBeginCommands(cc->commandBuffers, true);
-
-	shadow_rc->setActivePipeline(SHADOW_PIPELINE);
-	shadow_rc->insertPipelineCommands(cc->commandBuffers);
+	shadow_rc1->setActivePipeline(SHADOW_PIPELINE);
+	shadow_rc1->insertPipelineCommands(cc->commandBuffers);
 	for (int i = 0; i < cc->commandBuffers.size(); i++)
 	{
 		for (int j = 0; j < figures.size(); j++)
 		{
-			figures[j]->addShadowCommands(cc->commandBuffers[i], shadow_rc->getActivePipelineLayout(), i);
+			figures[j]->addShadowCommands1(cc->commandBuffers[i], shadow_rc1->getActivePipelineLayout(), i);
 		}
 	}
 
-	shadow_rc->insertEndCommands(cc->commandBuffers);
-	
-	/* Fin del renderpass del shadowmap */
+	shadow_rc1->insertEndCommands(cc->commandBuffers);
+	/* Fin del renderpass del shadowmap 1 */
+
+	/* Renderpass del shadowmap 2 */
+	shadow_rc2->insertBeginCommands(cc->commandBuffers, true);
+
+	shadow_rc2->setActivePipeline(SHADOW_PIPELINE);
+	shadow_rc2->insertPipelineCommands(cc->commandBuffers);
+	for (int i = 0; i < cc->commandBuffers.size(); i++)
+	{
+		for (int j = 0; j < figures.size(); j++)
+		{
+			figures[j]->addShadowCommands2(cc->commandBuffers[i], shadow_rc2->getActivePipelineLayout(), i);
+		}
+	}
+
+	shadow_rc2->insertEndCommands(cc->commandBuffers);
+	/* Fin del renderpass del shadowmap 2 */
+
+	/* Renderpass del shadowmap 3 */
+	shadow_rc3->insertBeginCommands(cc->commandBuffers, true);
+
+	shadow_rc3->setActivePipeline(SHADOW_PIPELINE);
+	shadow_rc3->insertPipelineCommands(cc->commandBuffers);
+	for (int i = 0; i < cc->commandBuffers.size(); i++)
+	{
+		for (int j = 0; j < figures.size(); j++)
+		{
+			figures[j]->addShadowCommands3(cc->commandBuffers[i], shadow_rc3->getActivePipelineLayout(), i);
+		}
+	}
+	shadow_rc3->insertEndCommands(cc->commandBuffers);
+	/* Fin del renderpass del shadowmap 3 */
 
 	/* Renderpass del skybox y la escena */
-
 	rc->insertBeginCommands(cc->commandBuffers, false);
 
 	rc->setActivePipeline(SKYBOX_PIPELINE);

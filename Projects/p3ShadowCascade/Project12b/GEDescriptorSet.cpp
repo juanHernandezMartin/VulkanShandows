@@ -9,13 +9,13 @@
 // 
 // PROPÓSITO: Crea los conjuntos de descriptores asociados a los buffers
 //
-GEDescriptorSet::GEDescriptorSet(GEGraphicsContext* gc, GERenderingContext* rc, std::vector<GEUniformBuffer*> ubos, std::vector<GETexture*> tex, GERenderingContext* shadow_rc)
+GEDescriptorSet::GEDescriptorSet(GEGraphicsContext* gc, GERenderingContext* rc, std::vector<GEUniformBuffer*> ubos, std::vector<GETexture*> tex, std::vector < GERenderingContext*> shadow_rc)
 {
 	uint32_t bufferCount = (uint32_t) ubos.size();
 	uint32_t textureCount = (uint32_t)tex.size();
 	uint32_t imageCount = rc->imageCount;
 
-	if (shadow_rc != nullptr) textureCount += 3;
+	textureCount += shadow_rc.size();
 
 	std::vector<VkDescriptorPoolSize> poolSizes(bufferCount+textureCount);
 
@@ -82,15 +82,16 @@ GEDescriptorSet::GEDescriptorSet(GEGraphicsContext* gc, GERenderingContext* rc, 
 			imageInfo[j].imageView = tex[j]->textureImageView;
 			imageInfo[j].sampler = tex[j]->textureSampler;
 		}
-		if (shadow_rc != nullptr)
+		for (int currShadowRender = 0; currShadowRender < shadow_rc.size(); currShadowRender++)
 		{
-			uint32_t j = (uint32_t) tex.size();
+			uint32_t j = (uint32_t)tex.size();
 			imageInfo[j] = {};
 			imageInfo[j].imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-			imageInfo[j].imageView = shadow_rc->getDepthView(i);
-			imageInfo[j].sampler = shadow_rc->getDepthSampler(i);
+			imageInfo[j].imageView = shadow_rc[currShadowRender]->getDepthView(i);
+			imageInfo[j].sampler = shadow_rc[currShadowRender]->getDepthSampler(i);
 		}
-
+		
+		
 		std::vector<VkWriteDescriptorSet> descriptorWrites;
 		descriptorWrites.resize(2);
 

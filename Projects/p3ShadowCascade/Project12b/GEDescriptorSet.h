@@ -21,7 +21,7 @@ public:
 	std::vector<VkDescriptorSet> descriptorSets;
 
 public:
-	GEDescriptorSet(GEGraphicsContext* gc, GERenderingContext* rc, std::vector<GEUniformBuffer*> ubos, std::vector<GETexture*> tex, GERenderingContext* shadow_rc);
+	GEDescriptorSet(GEGraphicsContext* gc, GERenderingContext* rc, std::vector<GEUniformBuffer*> ubos, std::vector<GETexture*> tex, std::vector <GERenderingContext*> shadow_rc);
 	void destroy(GEGraphicsContext* gc);
 };
 
