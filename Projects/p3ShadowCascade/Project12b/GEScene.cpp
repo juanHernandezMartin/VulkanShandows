@@ -227,11 +227,11 @@ void GEScene::recreate(GEGraphicsContext* gc, GEDrawingContext* dc, GECommandCon
 	this->rc = new GERenderingContext(gc, dc, skybox_config);
 	this->rc->addGraphicsPipeline(gc, scene_config);
 
-	VkExtent2D shadowExtent = { 1024, 1024 };
-	GEPipelineConfig* shadow_config = createShadowPipelineConfig(shadowExtent);
-	shadow_rc1 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
-	shadow_rc2 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
-	shadow_rc3 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
+	//VkExtent2D shadowExtent = { 1024, 1024 };
+	//GEPipelineConfig* shadow_config = createShadowPipelineConfig(shadowExtent);
+	//shadow_rc1 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
+	//shadow_rc2 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
+	//shadow_rc3 = new GERenderingContext(gc, dc->getImageCount(), shadowExtent, shadow_config);
 
 	fillCommandBuffers(cc);
 }
