@@ -84,7 +84,7 @@ GEDescriptorSet::GEDescriptorSet(GEGraphicsContext* gc, GERenderingContext* rc, 
 		}
 		for (int currShadowRender = 0; currShadowRender < shadow_rc.size(); currShadowRender++)
 		{
-			uint32_t j = (uint32_t)tex.size();
+			uint32_t j = (uint32_t)tex.size() + currShadowRender;
 			imageInfo[j] = {};
 			imageInfo[j].imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 			imageInfo[j].imageView = shadow_rc[currShadowRender]->getDepthView(i);

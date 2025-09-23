@@ -50,17 +50,20 @@ void GEFigure::initialize(GEGraphicsContext* gc, GERenderingContext* rc, GERende
 	shadowTransformBuffer2 = new GEUniformBuffer(gc, rc->imageCount, shadowTransformBufferSize);
 	shadowTransformBuffer3 = new GEUniformBuffer(gc, rc->imageCount, shadowTransformBufferSize);
 
-	std::vector<GEUniformBuffer*> shadow_ubos(3);
-	shadow_ubos[0] = shadowTransformBuffer1;
-	shadow_ubos[1] = shadowTransformBuffer2;
-	shadow_ubos[2] = shadowTransformBuffer3;
-
-
 	std::vector<GETexture*> shadow_tex(0);
 	std::vector<GERenderingContext*> nullShadow;
-	shadowDset1 = new GEDescriptorSet(gc, shadow_rc1, shadow_ubos, shadow_tex, nullShadow);
-	shadowDset2 = new GEDescriptorSet(gc, shadow_rc2, shadow_ubos, shadow_tex, nullShadow);
-	shadowDset3 = new GEDescriptorSet(gc, shadow_rc3, shadow_ubos, shadow_tex, nullShadow);
+
+	std::vector<GEUniformBuffer*> shadow_ubos1(1);
+	shadow_ubos1[0] = shadowTransformBuffer1;
+	shadowDset1 = new GEDescriptorSet(gc, shadow_rc1, shadow_ubos1, shadow_tex, nullShadow);
+
+	std::vector<GEUniformBuffer*> shadow_ubos2(1);
+	shadow_ubos2[0] = shadowTransformBuffer2;
+	shadowDset2 = new GEDescriptorSet(gc, shadow_rc2, shadow_ubos2, shadow_tex, nullShadow);
+
+	std::vector<GEUniformBuffer*> shadow_ubos3(1);
+	shadow_ubos3[0] = shadowTransformBuffer3;
+	shadowDset3 = new GEDescriptorSet(gc, shadow_rc3, shadow_ubos3, shadow_tex, nullShadow);
 
 	location = glm::mat4(1.0f);
 }
