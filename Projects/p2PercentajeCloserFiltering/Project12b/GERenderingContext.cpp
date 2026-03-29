@@ -644,8 +644,8 @@ void GERenderingContext::createFragmentShaderStageCreateInfo(GEGraphicsContext* 
 //
 void GERenderingContext::createPipelineVertexInputStateCreateInfo(GEPipelineConfig* config, VkPipelineVertexInputStateCreateInfo* vertexInputInfo)
 {
-	std::vector<VkVertexInputBindingDescription> bindingDescriptions;
-	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+	bindingDescriptions.clear();
+	attributeDescriptions.clear();
 
 	int attrCount = (int) config->attrOffsets.size();
 	int bindingCount = (attrCount > 0 ? 1 : 0);

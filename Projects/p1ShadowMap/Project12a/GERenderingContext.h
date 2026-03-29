@@ -32,6 +32,9 @@ private:
 	VkViewport viewport;
 	VkRect2D scissor;
 
+	std::vector<VkVertexInputBindingDescription> bindingDescriptions;
+	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+
 public:
 	GERenderingContext(GEGraphicsContext* gc, GEDrawingContext* dc, GEPipelineConfig* config);
 	GERenderingContext(GEGraphicsContext* gc, uint32_t imageCount, VkExtent2D extent, GEPipelineConfig* config);
